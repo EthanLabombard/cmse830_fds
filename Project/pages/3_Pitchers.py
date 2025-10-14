@@ -8,7 +8,7 @@ import seaborn as sns
 st.set_page_config(layout="wide", page_title="Pitcher Hall of Fame Predictor")
 
 #Load data
-pitching_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Data/pitcher_hof.csv"
+pitching_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Project/Data/pitcher_hof.csv"
 pitcher_hof = pd.read_csv(pitching_url)
 
 

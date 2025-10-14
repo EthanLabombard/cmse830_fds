@@ -9,8 +9,8 @@ import io
 st.set_page_config(layout="wide", page_title="Baseball Dataset Analysis")
 
 #Load data
-batting_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Data/Batting.csv"
-pitching_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Data/Pitching.csv"
+batting_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Project/Data/Batting.csv"
+pitching_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Project/Data/Pitching.csv"
 batting = pd.read_csv(batting_url)
 pitching = pd.read_csv(pitching_url)
 

@@ -8,7 +8,7 @@ import seaborn as sns
 st.set_page_config(layout="wide", page_title="Batter Hall of Fame Predictor")
 
 #Load data
-batting_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Data/batter_hof.csv"
+batting_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Project/Data/batter_hof.csv"
 batter_hof = pd.read_csv(batting_url)
 
 
