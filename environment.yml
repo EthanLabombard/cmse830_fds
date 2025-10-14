@@ -1,4 +1,4 @@
-name: baseball-hof
+name: cmse830_fds
 channels:
   - conda-forge
 dependencies:
