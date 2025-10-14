@@ -1,13 +1,14 @@
 name: cmse830_fds
 channels:
   - conda-forge
+  - defaults
 dependencies:
   - python=3.10
   - streamlit
   - pandas
   - matplotlib
   - numpy
-  - plotly
   - seaborn
+  - plotly
   - jupyter
-  - ipykernel
+  - pip
