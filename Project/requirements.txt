@@ -1,0 +1,9 @@
+python==3.10
+streamlit
+pandas
+matplotlib
+numpy
+seaborn
+plotly
+jupyter
+scikit-learn
