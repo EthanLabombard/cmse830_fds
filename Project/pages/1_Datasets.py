@@ -8,7 +8,6 @@ import io
 
 st.set_page_config(layout="wide", page_title="Baseball Dataset Analysis")
 
-#Load data
 batting_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Project/Data/Batting.csv"
 pitching_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Project/Data/Pitching.csv"
 batting = pd.read_csv(batting_url)
@@ -23,9 +22,9 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-st.markdown("""""")
 
 dataset_choice = st.radio("Select a dataset:", ("Batting", "Pitching"),horizontal=True)
+
 
 if dataset_choice == "Batting":
     df = batting
@@ -34,14 +33,25 @@ else:
 
 view_choice = st.radio("Choose a view:", ("Data Info", "Missing Values Visualization"), horizontal=True)
 
+if dataset_choice == "Batting":
+    df = batting
+    st.markdown(
+        """
+        Below is the evaluations for the raw batting data, to clean the data K-Nearest Neighbors evaluation was completed to fill missing values for the stolen base and strikeout columns. The rest of the missing data was set to 0 as these stats were either set at NaN because it did not occur or because it wasn't a possible statistic at that time.
+        """
+    )
+else:
+    df = pitching
+    st.markdown(
+        """
+        Below is the evaluations for the raw pitching data, to clean the pitching dataset K-Nearest Neighbors evaluation was completed to fill missing values for the intentional walks and hit by pitch columns. The rest of the missing data was set to 0 as these stats were either set at NaN because it did not occur or because it wasn't a possible statistic at that time.
+        """
+    )
 
 if view_choice == "Data Info":
     st.subheader(f"{dataset_choice} Dataset Information")
-    buffer = io.StringIO()
-    df.info(buf=buffer)
-    info_str = buffer.getvalue()
-    st.text(info_str)
-
+    excluded_cols = ["yearID", "stint"]
+    st.dataframe(df.drop(columns=excluded_cols, errors="ignore").describe())
 
 else:
     st.subheader(f"Missing Values Visualization — {dataset_choice}")

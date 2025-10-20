@@ -1,5 +1,7 @@
 # Baseball Hall of Fame Predictor Project
-https://www.kaggle.com/datasets/open-source-sports/baseball-databank?resource=download&select=Batting.csv
+Data Source: https://www.kaggle.com/datasets/open-source-sports/baseball-databank?resource=download&select=Batting.csv
+
+Project Website: https://ethanlabombard-cmse830-fds-projecthome-kyhsmm.streamlit.app/
 
 I chose to use the batting dataset, the pitching dataset and the hall of fame dataset for this project. This decision was made beacuse baseball is a great sport and not only is fun to watch, but is also a very statistics driven sport as well. These datasets in particular were chosen because they include data across many years of the league and have statistics for batters, pitchers, and hall of fame inductees. Overall, these datasets were chosen for their useful applications in predicting whether a player will be inducted into the hall of fame.
 

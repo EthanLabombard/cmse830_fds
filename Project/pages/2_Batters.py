@@ -7,7 +7,6 @@ import seaborn as sns
 
 st.set_page_config(layout="wide", page_title="Batter Hall of Fame Predictor")
 
-#Load data
 batting_url = "https://raw.githubusercontent.com/EthanLabombard/cmse830_fds/refs/heads/main/Project/Data/batter_hof.csv"
 batter_hof = pd.read_csv(batting_url)
 
@@ -28,14 +27,7 @@ st.markdown(
 color = {"Y": "green", "N": "red"}
 alphas = {"Y": 1, "N": 0.3}
 
-# ------------------------------------------
-# Page title
-# ------------------------------------------
-#st.title("Batter Hall of Fame Analysis Dashboard")
 
-# ------------------------------------------
-# Plot 1: Plotly Scatter (Career Hits vs Batting Average)
-# ------------------------------------------
 st.header("Career Hits and Batting Averages by Hall of Fame Status")
 st.markdown("""
 This scatter plot shows how career hits relate to batting average for players, 
@@ -55,9 +47,7 @@ fig1 = px.scatter(
 )
 st.plotly_chart(fig1, use_container_width=True)
 
-# ------------------------------------------
-# Plot 2: Violin Plot (Distribution of Home Runs)
-# ------------------------------------------
+
 st.header("Distribution of Home Runs by Hall of Fame Status")
 st.markdown("""
 This violin plot displays the distribution of home runs among inducted and non-inducted players.
@@ -72,13 +62,12 @@ fig2 = px.violin(
     box=True,
     points="all",
     color_discrete_map=color,
+    labels={"HR": "Home Runs", "inducted": "Inducted"},
     title="Distribution of Home Runs by Hall of Fame Status"
 )
 st.plotly_chart(fig2, use_container_width=True)
 
-# ------------------------------------------
-# Plot 3: Interactive Correlation Heatmap
-# ------------------------------------------
+
 st.header("Correlation Between Batter Statistics and Hall of Fame Induction")
 st.markdown("""
 This heatmap allows you to explore how different batting statistics correlate with 
@@ -86,19 +75,16 @@ Hall of Fame induction.
 You can customize which statistics to include using the selection below.
 """)
 
-# Ensure numeric mapping exists
 batter_hof["inducted_numeric"] = batter_hof["inducted"].map({"Y": 1, "N": 0})
 
-# Select numeric variables for correlation
 numeric_cols = ["G", "AB", "R", "H", "2B", "3B", "HR", "RBI", "SB", "CS", "BB", "SO", "IBB", "HBP", "SH", "SF", "GIDP", "AVG", "OBP", "inducted_numeric"]
-default_selection = ["H", "BB", "HR", "AVG", "RBI"]  # preset
+default_selection = ["H", "BB", "HR", "AVG", "RBI"]
 selected_vars = st.multiselect(
     "Select variables to compare with Hall of Fame induction:",
     options=[c for c in numeric_cols if c != "inducted_numeric"],
     default=default_selection
 )
 
-# Always include inducted_numeric
 corr_vars = selected_vars + ["inducted_numeric"]
 
 corr = batter_hof[corr_vars].corr()
