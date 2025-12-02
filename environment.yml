@@ -2,14 +2,35 @@ name: cmse830_fds
 channels:
   - conda-forge
   - defaults
+
 dependencies:
   - python=3.10
-  - streamlit
+
+  # Core Data Science Stack
+  - numpy
   - pandas
   - matplotlib
-  - numpy
   - seaborn
+  - scikit-learn
   - plotly
   - jupyter
+
+  # Streamlit App
+  - streamlit
+
+  # Visualization / Graphics for advanced charts
+  - altair
+  - networkx
+
+  # Graphviz for probability trees and flow diagrams
+  - graphviz        # system-level binaries
+  - python-graphviz # python interface (pip version also allowed)
+
+  # Optional but useful: data cleaning & imputation tools
+  - scikit-image
   - pip
-  - scikit-learn 
+
+  - pip:
+      - streamlit-option-menu
+      - plotly-express  # ensures latest PE
+      - graphviz        # fallback if conda version mismatches

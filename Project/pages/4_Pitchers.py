@@ -4,6 +4,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly.express as px
 import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+import plotly.graph_objects as go
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import graphviz
+from sklearn.linear_model import LogisticRegression
 
 st.set_page_config(layout="wide", page_title="Pitcher Hall of Fame Predictor")
 
@@ -93,3 +101,151 @@ fig6, ax6 = plt.subplots()
 sns.heatmap(corr, annot=True, cmap="viridis", fmt=".2f", vmin=-1, vmax=1, ax=ax6)
 ax6.set_title("Correlation Between Selected Pitcher Statistics and Hall of Fame Induction")
 st.pyplot(fig6, use_container_width=True)
+
+
+st.header("Player Archetype Radar Charts")
+st.markdown("""
+This radar chart clusters pitchers by some key statistics with a custumizable number of clusters possible.
+For the preset 4 clusters the player archetypes are:
+- 0  - Starting Pitchers; these pitchers throw many innings and tend to have high earned runs and high wins.
+- 1  - Aces; the best starting pitcers on the team, specialize in low earned runs, high strikeouts, and high wins.
+- 2  - Bullpen; the relief pitchers who tend to pitch few innings, tend to have high earned runs and high walks.
+- 3  - Closers; pitchers who finish games, these pitchers specialize in low earned runs and high saves.
+""")
+key_cols = ["W", "SV", "ER", "HR", "BB", "SO"]
+pitcher_hof_clean = pitcher_hof.dropna(subset=key_cols)
+
+k = st.sidebar.slider("Number of Archetypes (Clusters)", 2, 8, 4)
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(pitcher_hof_clean[key_cols])
+
+kmeans = KMeans(n_clusters=k, random_state=42)
+pitcher_hof_clean["cluster"] = kmeans.fit_predict(X_scaled)
+
+cluster_profiles = pitcher_hof_clean.groupby("cluster")[key_cols].mean()
+
+cluster_choice = st.selectbox("Select a player archetype:", cluster_profiles.index)
+
+profile = cluster_profiles.loc[cluster_choice]
+
+fig = go.Figure()
+
+fig.add_trace(go.Scatterpolar(
+    r = profile.values,
+    theta = key_cols,
+    fill = "toself",
+    name = f"Archetype {cluster_choice}"
+))
+
+fig.update_layout(
+    polar=dict(
+        radialaxis=dict(visible=True),
+    ),
+    showlegend=False,
+    title=f"Radar Chart: Archetype {cluster_choice}"
+)
+
+st.plotly_chart(fig)
+
+
+
+st.header("Hall of Fame Probability Tree")
+st.markdown("""
+This probability tree splits along various statistics that pitchers may have. The leaf nodes can be used to predict which class the player should be categorized within.
+""")
+key_cols = ["W", "SV", "IPouts", "ER", "HR", "BB", "SO"]
+
+pitcher_hof_clean = pitcher_hof.dropna(subset=key_cols + ["inducted_numeric"])
+
+X = pitcher_hof_clean[key_cols]
+y = pitcher_hof_clean["inducted_numeric"].astype(int)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+
+max_depth = st.sidebar.slider("Tree Depth", 2, 8, 4)
+
+clf = DecisionTreeClassifier(max_depth=max_depth, random_state=42)
+clf.fit(X_train, y_train)
+
+st.subheader("Decision Tree Visualization")
+
+dot_data = export_graphviz(
+    clf,
+    out_file=None,
+    feature_names=key_cols,
+    class_names=["Non-HOF", "HOF"],
+    filled=True,
+    rounded=True,
+    special_characters=True
+)
+
+graph = graphviz.Source(dot_data)
+st.graphviz_chart(dot_data)
+
+
+
+st.header("Hall of Fame Logistic Model")
+st.markdown("""
+This model is a logistic regression model that predicts whether a pitcher will make the hall of fame based upon the inputed statistics. The default statistics are the career statistics for Justin Verlander, a player widely considered to be a future hall of fame inductee.
+""")
+
+key_cols = ["W", "SV", "IPouts", "ER", "HR", "BB", "SO"]
+target = "inducted_numeric"
+
+pitcher_hof_clean = pitcher_hof.dropna(subset=key_cols + [target])
+
+X = pitcher_hof_clean[key_cols]
+y = pitcher_hof_clean[target]
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+model = LogisticRegression(max_iter=200, class_weight={0: 1, 1: 10})
+model.fit(X_scaled, y)
+
+st.sidebar.header("Enter Player Statistics")
+integer_features = ["W", "SV", "ER", "HR", "BB", "SO"]
+float_features = ["IPouts"]
+default_values = {
+    "W": 266,
+    "SV": 0,
+    "ER": 1317,
+    "HR": 371,
+    "BB": 1004,
+    "SO": 3553,
+    "IPouts": 3567.67
+}
+
+user_input = {}
+
+for feature in key_cols:
+    if feature in integer_features:
+        user_input[feature] = st.sidebar.number_input(
+            feature,
+            min_value=0,
+            max_value=5000,
+            value=int(default_values[feature]),
+            step=1,
+            format="%d"
+        )
+    else:
+        user_input[feature] = st.sidebar.number_input(
+            feature,
+            value=float(default_values[feature]),
+            step=0.01,
+            format="%.3f"
+        )
+
+input_df = pd.DataFrame([user_input])
+input_scaled = scaler.transform(input_df)
+
+prob = model.predict_proba(input_scaled)[0, 1]
+pred = model.predict(input_scaled)[0]
+st.subheader("Prediction")
+st.write(f"**Probability of Hall of Fame Induction:** `{prob:.3f}`")
+
+st.write(
+    "**Prediction:** Likely Hall of Famer" if pred == 1 else "**Prediction:** Not Likely Hall of Famer"
+)
