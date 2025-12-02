@@ -167,7 +167,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 
 max_depth = st.sidebar.slider("Tree Depth", 2, 8, 4)
 
-clf = DecisionTreeClassifier(max_depth=max_depth, random_state=42)
+clf = DecisionTreeClassifier(max_depth=max_depth, random_state=42, class_weight={0: 1, 1: 10})
 clf.fit(X_train, y_train)
 
 st.subheader("Decision Tree Visualization")
@@ -201,7 +201,7 @@ y = batter_hof_clean[target]
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-model = LogisticRegression(max_iter=200, class_weight={0: 1, 1: 5})
+model = LogisticRegression(max_iter=200, class_weight={0: 1, 1: 10})
 model.fit(X_scaled, y)
 
 st.sidebar.header("Enter Player Statistics")
@@ -248,3 +248,122 @@ st.write(f"**Probability of Hall of Fame Induction:** `{prob:.3f}`")
 st.write(
     "**Prediction:** Likely Hall of Famer" if pred == 1 else "**Prediction:** Not Likely Hall of Famer"
 )
+
+
+st.header("Model Evaluation & Comparison")
+st.markdown("""
+Below are thorough evaluation metrics for both the Decision Tree and Logistic Regression models.
+These measures help demonstrate model selection, validation, and performance comparison.
+""")
+tree_preds = clf.predict(X_test)
+tree_probs = clf.predict_proba(X_test)[:, 1]
+
+log_preds = model.predict(X_scaled)
+log_probs = model.predict_proba(X_scaled)[:, 1]
+
+# ----------------------------
+# 2. Confusion Matrix + Metrics
+# ----------------------------
+from sklearn.metrics import (
+    classification_report, confusion_matrix,
+    accuracy_score, roc_curve, auc
+)
+
+st.subheader("Confusion Matrices")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.write("### Decision Tree")
+    cm_tree = confusion_matrix(y_test, tree_preds)
+    st.write(cm_tree)
+
+with col2:
+    st.write("### Logistic Regression")
+    cm_log = confusion_matrix(y, log_preds)
+    st.write(cm_log)
+
+# ----------------------------
+# 3. Classification Reports
+# ----------------------------
+st.subheader("Classification Reports")
+
+cr_tree = classification_report(y_test, tree_preds, output_dict=True)
+cr_log = classification_report(y, log_preds, output_dict=True)
+
+col1, col2 = st.columns(2)
+with col1:
+    st.write("### Decision Tree")
+    st.json(cr_tree)
+
+with col2:
+    st.write("### Logistic Regression")
+    st.json(cr_log)
+
+# ----------------------------
+# 4. ROC Curves & AUC
+# ----------------------------
+st.subheader("ROC Curve Comparison")
+
+tree_fpr, tree_tpr, _ = roc_curve(y_test, tree_probs)
+tree_auc = auc(tree_fpr, tree_tpr)
+
+log_fpr, log_tpr, _ = roc_curve(y, log_probs)
+log_auc = auc(log_fpr, log_tpr)
+
+fig, ax = plt.subplots(figsize=(8,6))
+ax.plot(tree_fpr, tree_tpr, label=f"Decision Tree (AUC = {tree_auc:.3f})")
+ax.plot(log_fpr, log_tpr, label=f"Logistic Regression (AUC = {log_auc:.3f})")
+ax.plot([0,1],[0,1],"k--")
+ax.set_xlabel("False Positive Rate")
+ax.set_ylabel("True Positive Rate")
+ax.set_title("ROC Curve Comparison")
+ax.legend()
+st.pyplot(fig)
+
+# ----------------------------
+# 5. Cross-Validation
+# ----------------------------
+from sklearn.model_selection import cross_val_score
+
+st.subheader("Cross-Validation Scores")
+
+tree_cv = cross_val_score(clf, X, y, cv=5, scoring='accuracy')
+log_cv = cross_val_score(model, X_scaled, y, cv=5, scoring='accuracy')
+
+col1, col2 = st.columns(2)
+with col1:
+    st.write("### Decision Tree CV Accuracy")
+    st.write(tree_cv)
+    st.write(f"Mean: {tree_cv.mean():.3f}")
+
+with col2:
+    st.write("### Logistic Regression CV Accuracy")
+    st.write(log_cv)
+    st.write(f"Mean: {log_cv.mean():.3f}")
+
+# ----------------------------
+# 6. Basic Hyperparameter Tuning (Grid Search)
+# ----------------------------
+st.subheader("Hyperparameter Tuning (Grid Search)")
+
+from sklearn.model_selection import GridSearchCV
+
+param_grid = {
+    "max_depth": [2, 4, 6, 8, 10],
+    "criterion": ["gini", "entropy"]
+}
+
+grid = GridSearchCV(
+    DecisionTreeClassifier(random_state=42),
+    param_grid,
+    cv=5,
+    scoring='accuracy'
+)
+grid.fit(X, y)
+
+st.write("Best Parameters:", grid.best_params_)
+st.write("Best Cross-Validation Score:", grid.best_score_)
+st.markdown("""
+These results show that the logistic regression model tends to predict more heavly that a player will be in the hall of fame than the decision tree currently does. This has resulted in the logistic regression having a better accuracy score than the decision tree and makes the logistic regression model the better suited model to be used for the purpose of this project.
+""")

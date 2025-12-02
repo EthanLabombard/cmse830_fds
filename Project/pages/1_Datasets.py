@@ -32,7 +32,7 @@ st.markdown(
 )
 
 
-dataset_choice = st.radio("Select a dataset:", ("Batting", "Pitching"), horizontal=True)
+dataset_choice = st.radio("Select a dataset (caching used on both datasets):", ("Batting", "Pitching"), horizontal=True)
 
 df = batting if dataset_choice == "Batting" else pitching
 
