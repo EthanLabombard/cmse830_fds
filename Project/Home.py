@@ -18,9 +18,10 @@ This project will explore the relationship between baseball player performance a
 
 st.markdown("""
 ### For Navigation
-There are four pages as a part of this project:
+There are five pages as a part of this project:
 - This page is the Home page and includes information about the project and how best to use this app. 
 - The Datasets page includes some information and key statistics about the datasets used in this project. 
+- The Data processing page demonstrates how the was processed to fill NA values and combine datasets. 
 - The Batters page focuses on the relationship between batting statistics and Hall of Fame induction. 
 - The Pitchers page includes information about the relationship between pitching statistics and Hall of Fame Induction.
 """)
