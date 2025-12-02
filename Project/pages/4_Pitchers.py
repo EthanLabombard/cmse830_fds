@@ -7,10 +7,10 @@ import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 import plotly.graph_objects as go
-from sklearn.tree import DecisionTreeClassifier, export_graphviz
+from sklearn.tree import DecisionTreeClassifier
+from sklearn import tree
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-import graphviz
 from sklearn.linear_model import LogisticRegression
 
 st.set_page_config(layout="wide", page_title="Pitcher Hall of Fame Predictor")
@@ -171,18 +171,16 @@ clf.fit(X_train, y_train)
 
 st.subheader("Decision Tree Visualization")
 
-dot_data = export_graphviz(
+fig, ax = plt.subplots(figsize=(22, 14))  # Lots of room for labels
+tree.plot_tree(
     clf,
-    out_file=None,
     feature_names=key_cols,
     class_names=["Non-HOF", "HOF"],
     filled=True,
     rounded=True,
-    special_characters=True
+    fontsize=8
 )
-
-graph = graphviz.Source(dot_data)
-st.graphviz_chart(dot_data)
+st.pyplot(fig)
 
 
 

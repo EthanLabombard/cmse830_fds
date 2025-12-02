@@ -6,8 +6,6 @@ seaborn
 plotly
 jupyter
 scikit-learn
-graphviz
-python-graphviz
 altair
 networkx
 streamlit-option-menu
